@@ -1,6 +1,7 @@
 describe('fools', function () {
 
     describe('fork', function () {
+        
         describe('simple fork', function () {
 
             var positive = 0;
@@ -88,7 +89,7 @@ describe('fools', function () {
         });
     });
 
-    describe('and', function () {
+    describe('all', function () {
 
         var right = 0;
         var left = 0;
@@ -115,22 +116,83 @@ describe('fools', function () {
 
         q({x: 2, y: -1})({x: -4, y: -4})({x: 4, y: 4})({x: -4, y: -4})({x: 4, y: -4});
 
-        it('should have three right sides', function(){
+        it('should have three right sides', function () {
             assert.equal(right, 3, 'three right side');
         })
 
-        it('should have two left sides', function(){
+        it('should have two left sides', function () {
             assert.equal(left, 2, 'two left side');
         });
 
-        it('should have one up side', function(){
+        it('should have one up side', function () {
             assert.equal(up, 1, 'one up side');
         });
 
-        it('should have four down side', function(){
+        it('should have four down side', function () {
             assert.equal(down, 4, 'four down side');
         });
 
     });
 
+    describe('until', function () {
+
+        var positive = 0;
+        var whole = 0;
+        var zero = 0;
+        var negative = 0;
+        var errors = 0;
+        var reached_end = false;
+        var until_nums = Fools.until().add(function (n) {
+            if (!_.isNumber(n)) {
+                throw new Error('not a number');
+            }
+        }).add(function (n) {
+                if (n == 0) {
+                    ++zero;
+                    ++positive;
+                    return true;
+                }
+            }).add(function (n) {
+                if (n > 0) {
+                    ++positive;
+                    ++whole;
+                    return true;
+                }
+            }).add(function (n) {
+                if (n < 0) {
+                    ++negative;
+                    return true;
+                }
+            }).
+            err(function (e) {
+                console.log('adding an error for ', e);
+                ++errors;
+            });
+
+        until_nums(1)(0)(5)(-1)('foo');
+
+        it('should have 3 positive numbers', function () {
+            assert.equal(positive, 3, 'three positive numbers');
+        })
+
+        it('should have 2 whole number', function () {
+
+            assert.equal(whole, 2, 'two whole numbers');
+        })
+
+        it('should hace 1 negative number', function () {
+
+            assert.equal(negative, 1, 'one negative number');
+        });
+
+        it('should hae one zero', function () {
+
+            assert.equal(zero, 1, 'one zero');
+        });
+
+        it('should have one error', function () {
+            assert.equal(errors, 1, 'one error');
+        });
+
+    })
 });
