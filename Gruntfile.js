@@ -4,7 +4,7 @@ module.exports = function (grunt) {
         concat:   {
             base:       {
                 files: {
-                    'build/fools.js': ['src/index.js', 'src/all/index.js', 'src/until/index.js', 'src/fork/index.js']
+                    'build/fools.js': ['src/index.js', 'src/range/index.js','src/all/index.js','src/pipe/index.js', 'src/until/index.js', 'src/fork/index.js']
                 }
             }
         },
@@ -18,15 +18,15 @@ module.exports = function (grunt) {
                 amdModuleId:    'Fools', // optional, if missing the AMD module will be anonymous
                 globalAlias:    'Fools', // optional, changes the name of the global variable
                 deps:           { // optional
-                    'default': [],
-                    cjs:       []
+                    'default': ['_'],
+                    cjs:       ['underscore']
                 }
             }
         }
 
     });
     grunt.loadNpmTasks('grunt-contrib-concat');
-    grunt.loadNpmTasks('grunt-umd')
+    grunt.loadNpmTasks('grunt-umd');
 
 // the default task can be run just by typing "grunt" on the command line
     grunt.registerTask('default', ['concat:base', 'umd:fork']);

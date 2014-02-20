@@ -1,46 +1,19 @@
 function until() {
 
     var out = function Until(input) {
-        try {
-            out.do(input);
-        }
-        catch (err) {
-            if (out.if_error) {
-                out.if_error.call(out, err);
-            } else {
-                throw err;
-            }
-        }
-        return out;
-    };
-
-    out.tests = [];
-
-    out.add = function (test) {
-        out.tests.push(test);
-        return out;
-    };
-
-    out.err = function (fn) {
-        out.if_error = fn;
-        return out;
-    };
-
-
-    out.do = function (input) {
         var result = null;
-        try {
-            for (var i = 0; (!result) && ( i < out.tests.length); ++i) {
+        var i;
+        for (i = 0; (!result) && ( i < out.tests.length); ++i) {
+            try {
                 result = out.tests[i](input);
+                if (result) return i;
             }
-        }
-        catch (err) {
-            console.log('until error: ', err);
-            if (out.if_error) {
-                out.if_error.call(out, err);
-                result = true;
-            } else {
-                throw err;
+            catch (err) {
+                if (out.if_error) {
+                    result = out.if_error.call(out, err, input);
+                } else {
+                    throw err;
+                }
             }
         }
 
@@ -62,8 +35,14 @@ function until() {
                 }
             }
         }
+        return i;
     };
 
+    out.tests = [];
+
+    Fools.util.add.add(out);
+    Fools.util.add.err(out);
+    Fools.util.add.run(out);
     for (var i = 0; i < arguments.length; ++i) {
         out.add(arguments[i]);
     }

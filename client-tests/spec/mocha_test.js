@@ -1,7 +1,7 @@
 describe('fools', function () {
 
     describe('fork', function () {
-        
+
         describe('simple fork', function () {
 
             var positive = 0;
@@ -165,7 +165,6 @@ describe('fools', function () {
                 }
             }).
             err(function (e) {
-                console.log('adding an error for ', e);
                 ++errors;
             });
 
@@ -192,6 +191,7 @@ describe('fools', function () {
 
         it('should have one error', function () {
             assert.equal(errors, 1, 'one error');
+            assert
         });
 
     })

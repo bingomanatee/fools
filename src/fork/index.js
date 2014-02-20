@@ -1,21 +1,21 @@
-function fork(test, if_true, if_false, if_error){
+function fork(test, if_true, if_false, if_error) {
 
-    var out = function Fork(input){
+    var out = function Fork() {
+        var args = Array.prototype.slice.call( arguments);
         try {
-            if (out.test.call(out, input)){
-                 out.if_true.call(out, input);
+            if (out.test.apply(out, args)) {
+                return typeof(out.if_true) == 'function' ? out.if_true.apply(out, args) : out.if_true;
             } else {
-                 out.if_false.call(out, input);
+                return typeof(out.if_false) == 'function' ? out.if_false.apply(out, args) : out.if_false;
             }
-        } catch(err){
-           if( out.if_error){
-               out.if_error.call(out, err);
-           } else {
-               throw err;
-           }
-
+        } catch (err) {
+            if (out.if_error) {
+                return out.if_error.call(out, err);
+            } else {
+                throw err;
+            }
         }
-        return out;
+
     };
 
     out.test = test;
@@ -23,24 +23,18 @@ function fork(test, if_true, if_false, if_error){
     out.if_false = if_false;
     out.if_error = if_error;
 
-    out.next = function(data){
-       return out(data);
-    };
-
-    out.then = function(fn){
+    out.then = function (fn) {
         out.if_true = fn;
         return out;
     };
 
-    out.else = function(fn){
+    out.else = function (fn) {
         out.if_false = fn;
         return out;
-    }
+    };
 
-    out.err = function(fn){
-        out.if_error = fn;
-        return out;
-    }
+    Fools.util.add.run(out);
+    Fools.util.add.err(out);
 
     return out;
 

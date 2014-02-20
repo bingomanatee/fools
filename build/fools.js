@@ -1,63 +1,121 @@
 var Fools = {
+    util: {
+        math: {
+              sum: function(){
+                  var args = _.filter(_.toArray(arguments), _isNumber);
+                  return _.reduce(args, function(o, v){ return o + v}, 0);
+              }
+        },
+        add: {
+            last: function (out) {
+                out.last = function (fn) {
+                    out.last_fn = fn;
+                    return out;
+                }
+            },
 
+            run: function (out) {
+                out.run = function (input, pipe) {
+                    var output = out(input);
+                    if (pipe) {
+                        pipe(output);
+                    }
+                    return out;
+                }
+            },
+
+            err: function (out) {
+                out.err = function (fn) {
+                    out.if_error = fn;
+                    return out;
+                }
+            },
+
+            add: function (out) {
+                out.add = function (test) {
+                    out.tests.push(test);
+                    return out;
+                };
+                return out;
+            }
+        }
+    }
 };
 
 
-function all() {
+function range() {
 
-    var out = function Until(input) {
+    var out = function Range(input) {
+        var value = out.filter ? out.filter(input) : input;
+
         try {
-            out.do(input);
+            if (value < out.brackets[0]) {
+                if (out.min) {
+                    return typeof(out.min) == 'function' ? out.min(value, input) : out.min
+                } else {
+                    var error = new Error('below minimum bracket');
+                    error.data = input;
+                    error.value = value;
+                    throw error;
+                }
+            } else if (value >= out.brackets[out.brackets.length - 1] && out.max) {
+                return typeof(out.max) == 'function' ? out.max(value, input) : value;
+            } else {
+                for (var i = 0; i < out.brackets.length; ++i) {
+                    var bracket_value = out.brackets[i];
+                    var next_bracket = out.brackets[i + 1];
+                    if ((value < next_bracket) && (value >= bracket_value )) {
+                        var result = _.last(_.compact(out.outcomes.slice(0, i + 1)));
+                        if (typeof result == 'function') {
+                            return result(value, input, bracket_value, next_bracket);
+                        } else {
+                            return result;
+                        }
+                    }
+                }
+
+                var range_error = new Error('No brackedted result found');
+                range_error.value = value;
+                range_error.input = input;
+                throw range_error;
+            }
         }
         catch (err) {
             if (out.if_error) {
-                out.if_error.call(out, err);
+                return out.if_error(err)
             } else {
                 throw err;
             }
         }
+
+    };
+
+    out.outcomes = [];
+    out.brackets = [];
+
+    out.add = function (value, outcome) {
+        out.brackets.push(value);
+        out.outcomes.push(outcome);
         return out;
     };
 
-    out.tests = [];
-
-    out.add = function (test) {
-        out.tests.push(test);
+    out.add_min = function (outcome) {
+        out.min = outcome;
         return out;
     };
 
-    out.err = function (fn) {
-        out.if_error = fn;
+    out.add_max = function (outcome) {
+        out.max = outcome;
         return out;
     };
 
-    out.last = function (fn) {
-        out.if_last = fn;
+    out.filter = function (filter) {
+        out.filter = filter;
         return out;
-    }
-
-    out.do = function (input) {
-        var errors = [];
-        try {
-            for (var i = 0;  ( i < out.tests.length); ++i){
-                out.tests[i](input);
-            }
-        }
-        catch (err) {
-            errors.push(err);
-        }
-        if (errors.length){
-            var error = new Error('error in all');
-            error.data = errors;
-            if (out.if_error){
-                out.if_error(error);
-            } else {
-                throw error;
-            }
-        }
     };
 
-
+    Fools.util.add.err(out);
+    Fools.util.add.run(out);
     for (var i = 0; i < arguments.length; ++i) {
         out.add(arguments[i]);
     }
@@ -65,50 +123,108 @@ function all() {
     return out;
 }
 
-Fools.all = all;
-function until() {
+Fools.range = range;
+function all() {
 
-    var out = function Until(input) {
-        try {
-            out.do(input);
-        }
-        catch (err) {
-            if (out.if_error) {
-                out.if_error.call(out, err);
-            } else {
-                throw err;
+    var out = function All(input) {
+        var errors = [];
+        var output = [];
+
+        for (var i = 0; ( i < out.tests.length); ++i) {
+            try {
+                output.push(out.tests[i](input));
+            }
+            catch (err) {
+                output.push([null, err]);
+                errors.push(err);
             }
         }
-        return out;
+
+        try {
+            if (out.last_fn) {
+                output.push(out.last_fn(input));
+            }
+        }
+        catch (err) {
+            errors.push(err);
+        }
+
+        if (errors.length) {
+            var error = new Error('error in all');
+            error.data = errors;
+            if (out.if_error) {
+                out.if_error(error);
+            } else {
+                throw error;
+            }
+        }
+        return output;
     };
 
     out.tests = [];
 
-    out.add = function (test) {
-        out.tests.push(test);
-        return out;
-    };
+    for (var i = 0; i < arguments.length; ++i) {
+        out.add(arguments[i]);
+    }
 
-    out.err = function (fn) {
-        out.if_error = fn;
-        return out;
-    };
+    Fools.util.add.run(out);
+    Fools.util.add.err(out);
+    Fools.util.add.last(out);
+    Fools.util.add.add(out);
+    return out;
+}
 
+Fools.all = all;
+function pipe() {
 
-    out.do = function (input) {
-        var result = null;
-        try {
-            for (var i = 0; (!result) && ( i < out.tests.length); ++i) {
-                result = out.tests[i](input);
+    var out = function Pipe(input) {
+
+        for (var i = 0; ( i < out.tests.length); ++i) {
+            try {
+                input = out.tests[i](input);
+            }
+            catch (err) {
+                if (out.if_error) {
+                    out.if_error(err);
+                } else {
+                    throw err;
+                }
             }
         }
-        catch (err) {
-            console.log('until error: ', err);
-            if (out.if_error) {
-                out.if_error.call(out, err);
-                result = true;
-            } else {
-                throw err;
+
+        return input;
+    };
+
+    out.tests = [];
+
+    Fools.util.add.run(out);
+    Fools.util.add.err(out);
+    Fools.util.add.last(out);
+    Fools.util.add.add(out);
+    for (var i = 0; i < arguments.length; ++i) {
+        out.add(arguments[i]);
+    }
+
+    return out;
+}
+
+Fools.pipe = pipe;
+function until() {
+
+    var out = function Until(input) {
+        var result = null;
+        var i;
+        for (i = 0; (!result) && ( i < out.tests.length); ++i) {
+            try {
+                result = out.tests[i](input);
+                if (result) return i;
+            }
+            catch (err) {
+                if (out.if_error) {
+                    result = out.if_error.call(out, err, input);
+                } else {
+                    throw err;
+                }
             }
         }
 
@@ -130,8 +246,14 @@ function until() {
                 }
             }
         }
+        return i;
     };
 
+    out.tests = [];
+
+    Fools.util.add.add(out);
+    Fools.util.add.err(out);
+    Fools.util.add.run(out);
     for (var i = 0; i < arguments.length; ++i) {
         out.add(arguments[i]);
     }
@@ -140,24 +262,24 @@ function until() {
 }
 
 Fools.until = until;
-function fork(test, if_true, if_false, if_error){
+function fork(test, if_true, if_false, if_error) {
 
-    var out = function Fork(input){
+    var out = function Fork() {
+        var args = Array.prototype.slice.call( arguments);
         try {
-            if (out.test.call(out, input)){
-                 out.if_true.call(out, input);
+            if (out.test.apply(out, args)) {
+                return typeof(out.if_true) == 'function' ? out.if_true.apply(out, args) : out.if_true;
             } else {
-                 out.if_false.call(out, input);
+                return typeof(out.if_false) == 'function' ? out.if_false.apply(out, args) : out.if_false;
             }
-        } catch(err){
-           if( out.if_error){
-               out.if_error.call(out, err);
-           } else {
-               throw err;
-           }
-
+        } catch (err) {
+            if (out.if_error) {
+                return out.if_error.call(out, err);
+            } else {
+                throw err;
+            }
         }
-        return out;
+
     };
 
     out.test = test;
@@ -165,24 +287,18 @@ function fork(test, if_true, if_false, if_error){
     out.if_false = if_false;
     out.if_error = if_error;
 
-    out.next = function(data){
-       return out(data);
-    };
-
-    out.then = function(fn){
+    out.then = function (fn) {
         out.if_true = fn;
         return out;
     };
 
-    out.else = function(fn){
+    out.else = function (fn) {
         out.if_false = fn;
         return out;
-    }
+    };
 
-    out.err = function(fn){
-        out.if_error = fn;
-        return out;
-    }
+    Fools.util.add.run(out);
+    Fools.util.add.err(out);
 
     return out;
 
