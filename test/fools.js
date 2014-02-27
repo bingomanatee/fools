@@ -4,6 +4,136 @@ var _ = require('underscore');
 
 describe('Fools', function () {
 
+    describe('loop', function () {
+
+        describe ('algorithmic', function(){
+
+            var scan, looper;
+
+            before(function(){
+
+                looper = Fools.loop(function(iterator, memo, out){
+                 //   console.log('iterator: %s', require('util').inspect(iterator));
+                    switch(out.place('x', iterator)){
+                        case 'first':
+                            memo.push( iterator.x);
+                            break;
+
+                        case 'last':
+                            memo.push( iterator.x);
+                            break;
+
+                        default:
+                            switch(out.place('y', iterator)){
+                                case 'first':
+                                    memo.push(iterator.y);
+                                    break;
+
+                                case 'last':
+                                    memo.push(iterator.y);
+                                    break;
+
+                                default:
+                                    memo.push(0);
+                            }
+                    }
+                    return memo;
+                }).dim('x')
+                    .min(function(){ return scan.x - scan.width})
+                    .max(function(){return scan.x + scan.width})
+                .dim('y')
+                    .min(function(){ return scan.y - scan.height})
+                    .max(function(){return scan.y + scan.height});
+
+
+            });
+
+
+            it('should reflect scans position', function(){
+                scan = {width: 1, height: 2, x: 0, y: 0};
+                looper([]).should.eql([ -1, -2, 1, -1, 0, 1, -1, 0, 1, -1, 0, 1, -1, 2, 1 ]);
+            });
+
+            it('should reflect scans updated position', function(){
+                scan = {width: 3, height: 4, x:2, y: 2};
+                looper([]).should.eql([ -1, -2, -2, -2, -2, -2, 5, -1, 0, 0, 0, 0, 0, 5, -1, 0, 0, 0, 0, 0, 5, -1, 0, 0, 0, 0, 0, 5, -1, 0, 0, 0, 0, 0, 5, -1, 0, 0, 0, 0, 0, 5, -1, 0, 0, 0, 0, 0, 5, -1, 0, 0, 0, 0, 0, 5, -1, 6, 6, 6, 6, 6, 5 ]);
+            })
+        });
+
+        describe('place', function () {
+
+            var looper;
+
+            before(function () {
+
+                looper = Fools.loop(function (iterator, memo, out) {
+                    memo.push(out.place('x', iterator)
+                        + '...' + out.place('y', iterator));
+                    return memo;
+                }).dim('x').min(0).max(3).dim('y').min(0).max(3);
+
+            });
+
+            it('should be funky', function () {
+                looper([]).should.eql(['first...first',
+                    'middle...first',
+                    'middle...first',
+                    'last...first',
+                    'first...middle',
+                    'middle...middle',
+                    'middle...middle',
+                    'last...middle',
+                    'first...middle',
+                    'middle...middle',
+                    'middle...middle',
+                    'last...middle',
+                    'first...last',
+                    'middle...last',
+                    'middle...last',
+                    'last...last']);
+            });
+
+        });
+
+        describe('basic', function () {
+
+            var looper;
+
+            before(function () {
+                looper = Fools.loop(function (iterator, memo) {
+
+                    if ((!(iterator.x % 3)) && (!(iterator.y % 3))) {
+                        memo.push(2);
+                    } else if ((!(iterator.x % 3)) || (!(iterator.y % 3))) {
+                        memo.push(1);
+                    } else {
+                        memo.push(0);
+                    }
+
+                    return memo;
+
+                }).dim('x').min(0).max(5).dim('y').min(0).max(6);
+            });
+
+            it('should have expected dims', function () {
+                looper.dims.should.eql({ x: { min: 0, max: 5 }, y: { min: 0, max: 6 } });
+            });
+
+            it('should produce data', function () {
+                var data = looper([]);
+                data.should.eql(
+                    [2, 1, 1, 2, 1, 1,
+                        1, 0, 0, 1, 0, 0,
+                        1, 0, 0, 1, 0, 0,
+                        2, 1, 1, 2, 1, 1,
+                        1, 0, 0, 1, 0, 0,
+                        1, 0, 0, 1, 0, 0,
+                        2, 1, 1, 2, 1, 1], 'array produced');
+            });
+        })
+
+    });
+
     describe('until', function () {
 
         /**
@@ -302,9 +432,9 @@ describe('Fools', function () {
             before(function () {
                 var make_member = function (id, name, likes) {
                     var m = {
-                        id:         id,
-                        name:       name,
-                        likes:      likes,
+                        id: id,
+                        name: name,
+                        likes: likes,
                         likability: 0
                     };
 
@@ -433,11 +563,11 @@ describe('Fools', function () {
 
         _.each([1, 10, 20, 30, -1, 0, 4, 1000, 500, -200, -100, -5000, -100000, 2000000, 100235252], handle_numbers);
 
-/*        console.log('ones: ', ones.join(','));
-        console.log('tens: ', tens.join(','));
-        console.log('hundreds: ', hundreds.join(','));
-        console.log('thousands: ', thousands.join(','));
-        console.log('huge: ', huge.join(','));*/
+        /*        console.log('ones: ', ones.join(','));
+         console.log('tens: ', tens.join(','));
+         console.log('hundreds: ', hundreds.join(','));
+         console.log('thousands: ', thousands.join(','));
+         console.log('huge: ', huge.join(','));*/
 
         function _s(v) {
             return _.sortBy(v, _.identity);
@@ -460,10 +590,10 @@ describe('Fools', function () {
         });
 
         it('should have these positive numbers', function () {
-            _s(positive_numbers).should.eql(_s([1,10,20,30,0,4,1000,500,2000000,100235252]));
+            _s(positive_numbers).should.eql(_s([1, 10, 20, 30, 0, 4, 1000, 500, 2000000, 100235252]));
         });
         it('should have these negative_numbers', function () {
-            _s(negative_numbers).should.eql(_s([-1,-200,-100,-5000,-100000]));
+            _s(negative_numbers).should.eql(_s([-1, -200, -100, -5000, -100000]));
         });
 
     });

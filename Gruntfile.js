@@ -4,7 +4,13 @@ module.exports = function (grunt) {
         concat:   {
             base:       {
                 files: {
-                    'build/fools.js': ['src/index.js', 'src/range/index.js','src/all/index.js','src/pipe/index.js', 'src/until/index.js', 'src/fork/index.js']
+                    'build/fools.js': ['src/index.js',
+                        'src/range/index.js',
+                        'src/all/index.js',
+                        'src/pipe/index.js',
+                        'src/until/index.js',
+                        'src/loop/index.js',
+                        'src/fork/index.js']
                 }
             }
         },
