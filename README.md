@@ -3,6 +3,14 @@ This is an attempt to use the promise pattern to create functional rules system 
 Each of the classes take one or more functions as constructor arguments and return a function.
 The resulting function always takes a single argument.
 
+## Why?
+
+Ordinary functions and logic flow structures are immutable; once a function is defined it is a closed system.
+Foools components can be adjusted on the fly; you can change the fork's 'then' clause at any time, or it's
+else clause.
+
+It is also very easy to load process structures from configuration files, and compose them with each other.
+
 ## Fools.fork
 
 Fork takes one function that returns true or false and calls the second function (with the original argument)

@@ -4,6 +4,70 @@ var _ = require('underscore');
 
 describe('Fools', function () {
 
+    /**
+     * Rate evaluates candidates based on preprogrammed properties and weights.
+     *
+     */
+
+    describe('rate', function () {
+
+        var students, math_score, gpa, gpa_flat;
+
+        before(function () {
+            students = [
+                {name: 'bob', math: 2.0, english: 3.0, pe: 4.0, health: 3.0},
+                {name: 'stan', math: 4.0, english: 4.0, pe: 2.0, health: 4.0},
+                {name: 'rick', math: 3.5, english: 3.6, pe: 4.0, health: 4.0},
+                {name: 'sue', math: 4.0, english: 4.0, pe: 3.5 , health: 3.5}
+            ];
+            math_score = Fools.rate().prop('math');
+
+            gpa_flat = Fools.rate();
+            gpa_flat.property('math');
+            gpa_flat.property('english');
+            gpa_flat.property('pe');
+            gpa_flat.property('health');
+
+            gpa = Fools.rate();
+            gpa.property('math').weight(4);
+            gpa.property('english').weight(3);
+            gpa.property('pe').weight(2);
+            gpa.property('health').weight(3);
+        });
+
+        it('should rate students on math', function () {
+            math_score.rate(students[0]).should.eql(2, 'bob has a 2 math');
+            math_score._candidates.length.should.eql(0, 'no candidates added');
+
+            math_score.add(students);
+            math_score._candidates.length.should.eql(4, '4 added records');
+            math_score.best().data.name.should.eql('sue');
+            math_score.worst().data.name.should.eql('bob');
+
+            gpa_flat.rate(students[0]).should.eql(3.0, 'bobs flat gpa == 3.0');
+
+           // var g = gpa.rate(students[2]);
+          //  console.log('gpa grade', g);
+            gpa.rate(students[0]).should.be.approximately(2.83, 0.01, 'weighted grade for bob -- hurts on the fundamentals');
+            gpa.rate(students[1]).should.be.approximately(3.66, 0.01, 'weighted grade for stan -- low PE score doesnt hurt too much');
+            gpa.rate(students[2]).should.be.approximately(3.73, 0.01, 'weighted grade for rick -- good but in the wrong things');
+            gpa.rate(students[3]).should.be.approximately(3.79, 0.01, 'weighted grade for sue -- high overall');
+
+          //  var g = gpa_flat.rate(students[2]);
+        //   console.log('gpa_flat grade', g);
+            gpa_flat.rate(students[0]).should.be.approximately(3, 0.01, 'weighted grade for bob -- hurts on the fundamentals');
+            gpa_flat.rate(students[1]).should.be.approximately(3.5, 0.01, 'weighted grade for stan -- low PE score doesnt hurt too much');
+            gpa_flat.rate(students[2]).should.be.approximately(3.77, 0.01, 'weighted grade for rick -- overall best');
+            gpa_flat.rate(students[3]).should.be.approximately(3.75, 0.01, 'weighted grade for sue -- good but not overall best');
+
+            gpa_flat.add(students);
+            gpa.add(students);
+
+            gpa_flat.best().data.name.should.eql('rick', 'rick is the best flat gpa');
+            gpa.best().data.name.should.eql('sue', 'sue is the best weighted gpa');
+        })
+    });
+
     describe('until', function () {
 
         /**
@@ -194,7 +258,7 @@ describe('Fools', function () {
                     });
 
                 if_positive.run(1).run(0).run(5).run(-1).run('foo');
-            })
+            });
 
             it('should tally results', function () {
                 positive.should.equal(3, 'three positive numbers');
@@ -276,9 +340,7 @@ describe('Fools', function () {
                 }).then(function (text) {
                         var m = grep.exec(text);
                         return parseFloat(m[1]);
-                    }).else(function () {
-                        return 0;
-                    }).err(function (err) {
+                    }).else(0).err(function (err) {
                         ++bad;
                         return 0;
                     });
@@ -403,7 +465,7 @@ describe('Fools', function () {
         var negative_numbers = [];
 
         var range_fn = Fools.range();
-        range_fn.filter(Math.abs);
+        range_fn.add_filter(Math.abs);
 
         var tally_negative = Fools.fork(function (n) {
             return n >= 0
@@ -433,11 +495,11 @@ describe('Fools', function () {
 
         _.each([1, 10, 20, 30, -1, 0, 4, 1000, 500, -200, -100, -5000, -100000, 2000000, 100235252], handle_numbers);
 
-/*        console.log('ones: ', ones.join(','));
-        console.log('tens: ', tens.join(','));
-        console.log('hundreds: ', hundreds.join(','));
-        console.log('thousands: ', thousands.join(','));
-        console.log('huge: ', huge.join(','));*/
+        /*        console.log('ones: ', ones.join(','));
+         console.log('tens: ', tens.join(','));
+         console.log('hundreds: ', hundreds.join(','));
+         console.log('thousands: ', thousands.join(','));
+         console.log('huge: ', huge.join(','));*/
 
         function _s(v) {
             return _.sortBy(v, _.identity);
@@ -446,24 +508,29 @@ describe('Fools', function () {
         it('should have these ones', function () {
             _s(ones).should.eql([-1, 0, 1, 4]);
         });
+
         it('should have these tens', function () {
             _s(tens).should.eql(_s([ 10, 20, 30]));
         });
+
         it('should have these hundreds', function () {
             _s(hundreds).should.eql(_s([500, -200, -100]));
         });
+
         it('should have these thousands', function () {
             _s(thousands).should.eql(_s([1000, -5000]));
         });
+
         it('should have these huge', function () {
             _s(huge).should.eql(_s([-100000, 2000000, 100235252]));
         });
 
         it('should have these positive numbers', function () {
-            _s(positive_numbers).should.eql(_s([1,10,20,30,0,4,1000,500,2000000,100235252]));
+            _s(positive_numbers).should.eql(_s([1, 10, 20, 30, 0, 4, 1000, 500, 2000000, 100235252]));
         });
+
         it('should have these negative_numbers', function () {
-            _s(negative_numbers).should.eql(_s([-1,-200,-100,-5000,-100000]));
+            _s(negative_numbers).should.eql(_s([-1, -200, -100, -5000, -100000]));
         });
 
     });

@@ -29,6 +29,10 @@ function range() {
                     }
                 }
 
+                if (out.max){
+                    return (typeof this.max == 'function') ? this.max(value, input) : this.max;
+                }
+
                 var range_error = new Error('No brackedted result found');
                 range_error.value = value;
                 range_error.input = input;
@@ -64,7 +68,7 @@ function range() {
         return out;
     };
 
-    out.filter = function (filter) {
+    out.add_filter = function (filter) {
         out.filter = filter;
         return out;
     };

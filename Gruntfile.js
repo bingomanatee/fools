@@ -4,7 +4,7 @@ module.exports = function (grunt) {
         concat:   {
             base:       {
                 files: {
-                    'build/fools.js': ['src/index.js', 'src/range/index.js','src/all/index.js','src/pipe/index.js', 'src/until/index.js', 'src/fork/index.js']
+                    'build/fools.js': ['src/index.js', 'src/range/index.js','src/all/index.js','src/rate/index.js','src/pipe/index.js', 'src/until/index.js', 'src/fork/index.js']
                 }
             }
         },
@@ -19,7 +19,7 @@ module.exports = function (grunt) {
                 globalAlias:    'Fools', // optional, changes the name of the global variable
                 deps:           { // optional
                     'default': ['_'],
-                    cjs:       ['underscore']
+                    cjs:       ['lodash']
                 }
             }
         }
