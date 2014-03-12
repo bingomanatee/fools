@@ -1,9 +1,9 @@
 function range() {
 
     var out = function Range(input) {
-        var value = out.filter ? out.filter(input) : input;
 
         try {
+            var value = out.filter ? out.filter(input) : input;
             if (value < out.brackets[0]) {
                 if (out.min) {
                     return typeof(out.min) == 'function' ? out.min(value, input) : out.min
