@@ -1,13 +1,17 @@
 # Changelog
 
-# Base
+## Base
 
 Established fork, pipe, range, and until; tested
 
-# 0.0.5
+## 0.0.5
 
 Added rate
 
-# 0.0.7
+## 0.0.7
 
 Allowed filter to throw error in range
+
+## 0.0.8
+
+Added looping abstract
