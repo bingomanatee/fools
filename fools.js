@@ -1,7 +1,7 @@
 
 (function(root, factory) {
     if(typeof exports === 'object') {
-        module.exports = factory(require('underscore'), require, exports, module);
+        module.exports = factory(require('lodash'), require, exports, module);
     }
     else if(typeof define === 'function' && define.amd) {
         define('Fools', ['_', 'require', 'exports', 'module'], factory);
@@ -61,9 +61,9 @@ var Fools = {
 function range() {
 
     var out = function Range(input) {
-        var value = out.filter ? out.filter(input) : input;
 
         try {
+            var value = out.filter ? out.filter(input) : input;
             if (value < out.brackets[0]) {
                 if (out.min) {
                     return typeof(out.min) == 'function' ? out.min(value, input) : out.min
@@ -87,6 +87,10 @@ function range() {
                             return result;
                         }
                     }
+                }
+
+                if (out.max){
+                    return (typeof this.max == 'function') ? this.max(value, input) : this.max;
                 }
 
                 var range_error = new Error('No brackedted result found');
@@ -124,7 +128,7 @@ function range() {
         return out;
     };
 
-    out.filter = function (filter) {
+    out.add_filter = function (filter) {
         out.filter = filter;
         return out;
     };
@@ -190,13 +194,159 @@ function all() {
 }
 
 Fools.all = all;
+function rate(){
+
+    /**
+     * resemble either rates an object based on its properties
+     * or returns the highest rated object amongst a list of candidates.
+     * As such you cannot pass a single array and get a single rating -- each of its elements will be rated.
+     */
+    /**
+     *
+     * @param name {string | function} used to get the property / quality of the target
+     * @param rating {function} (optional) converts the proerty into a numerical rating.
+     * @param weight {number} (optional) determines the relevance of the given rating. default 1.
+     * @constructor
+     */
+
+    function Property(name, rating, weight){
+      if (_.isFunction(name)){
+          this._get = name;
+      } else {
+          this.name = name;
+      }
+
+      this._rating = rating || _.identity;
+
+      this._weight = weight || 1;
+    }
+
+    Property.prototype = {
+        rate: function(item){
+            var base = this.base(item);
+            var rating = this.get_rating()(base, item, out);
+            var weight = this.get_weight();
+            if (!_.isNumber(rating)){
+                throw new Error('not a number rating');
+            } else if (!_.isNumber(weight)){
+                throw new Error('not a number weight');
+            }
+            return rating * weight;
+        },
+        base: function(item){
+            return (this._get) ? this._get(item, out) : item[this.name];
+        },
+        weight: function(value){
+            this._weight = value;
+            return this;
+        },
+        rating: function(rating){
+            this._rating = rating;
+            return this;
+        },
+        get_weight: function(){
+            return this._weight;
+        },
+        get_rating: function(){
+            return this._rating;
+        }
+    };
+
+    function out(data){
+        if (_.isArray(data)){
+            return _.map(data, function(item){
+                return {rating: out.rate(item), data: item};
+            });
+        } else {
+            return this.rate(data);
+        }
+    }
+
+    out.properties = [];
+
+    out._candidates = [];
+
+    out.scale = function(){
+        return _.reduce(out.properties, function(v, prop){
+            return v + prop.get_weight();
+        } ,0)
+    };
+
+    out.rate = function(target){
+        var rating = 0;
+        _.each(out.properties, function(property){
+            rating += property.rate(target);
+        });
+        return rating/out.scale();
+    };
+
+    out.best = function(){
+        return _.last(_.sortBy(out._candidates, 'rating'));
+    };
+
+    out.worst = function(){
+        return _.first(_.sortBy(out._candidates, 'rating'));
+    };
+
+    out.select = function(min, max, inclusive){
+        return _.filter(out._candidates, function(candidate){
+            return candidate.rating >= min && ((inclusive) ? candidate.rating <= max : candidate.rating < max);
+        });
+    };
+
+    /**
+     * adds one or more items to the list of candidates of out
+     * and returns the result.
+     *
+     * @param data
+     * @returns {*}
+     */
+    out.add = function(data){
+        if (_.isArray(data)){
+            var results =  _.map(data, function(item){
+                return({rating: out.add(item), data: item});
+            });
+            return results;
+        } else {
+            var rating = out.rate(data);
+            out._candidates.push({rating: rating, data: data});
+            return rating;
+        }
+    };
+
+    /**
+     * Prop and Property are identical except property returns the property object.
+     *
+     * @param param {string|function}
+     * @param rating {function} (optional)
+     * @param weight {number > 0} (optional)
+     * @returns {out}
+     */
+
+    out.prop = function(param, rating, weight){
+        var prop = new Property(param, rating, weight);
+        out.properties.push(prop);
+        return out;
+    };
+
+    out.property = function(param, rating, weight){
+        var prop = new Property(param, rating, weight);
+        out.properties.push(prop);
+        return prop;
+    };
+
+    return out;
+
+};
+
+Fools.rate = rate;
 function pipe() {
 
-    var out = function Pipe(input) {
-
+    var out = function Pipe() {
+        var input = _.toArray(arguments);
         for (var i = 0; ( i < out.tests.length); ++i) {
             try {
-                input = out.tests[i](input);
+                input = i ? out.tests[i](input) : out.tests[i].apply(out.tests[i], input)
             }
             catch (err) {
                 if (out.if_error) {
@@ -277,109 +427,6 @@ function until() {
 }
 
 Fools.until = until;
-function loop(iterator) {
-
-    var out = function (memo) {
-        var dims = [];
-        var args = _.toArray(arguments);
-
-        if (args.length < 2) {
-            dims = _.keys(out.dims);
-        } else {
-            _.each(args.slice(1), function (dim) {
-                if (out.dims.hasOwnProperty(dim)) {
-                    dims.push(dim);
-                }
-            });
-        }
-
-        var iterator = {};
-        _.each(dims, function (dim) {
-            iterator[dim] = _min(dim);
-        });
-
-        var done = false;
-
-        while (!done) {
-            memo = out.iterator(iterator, memo, out);
-
-            var dim_index = 0;
-            var next = false;
-            while ((!next) && (dim_index < dims.length)) {
-                var dim = dims[dim_index];
-                if (iterator[dim] < _max(dim, iterator)) {
-                    ++iterator[dim];
-                    next = true;
-                } else {
-                    iterator[dim] = _min(dim, iterator);
-                    ++dim_index;
-                }
-            }
-            done = !next;
-        }
-
-        return memo;
-    };
-
-    out.place = Fools.fork(function(dim, iterator){
-      //  console.log('_min %s: %s, iterator %s', dim, _min(dim, iterator), iterator[dim]);
-        return _min(dim, iterator) == iterator[dim];
-    }).then('first').else(Fools.fork(function(dim, iterator){
-            return _max(dim, iterator) == iterator[dim];
-        }).then('last').else('middle'));
-
-    function _min(dim, iterator){
-        if (typeof(dim)!= 'string'){
-            throw new Error(require('util').format(
-                'non string dim passed to min: %s,', require('util').inspect(dim)));
-        }
-        return typeof(out.dims[dim].min) == 'function' ? out.dims[dim].min(iterator) : out.dims[dim].min;
-    }
-    function _max(dim, iterator){
-        return typeof(out.dims[dim].max) == 'function' ? out.dims[dim].max(iterator) : out.dims[dim].max;
-    }
-
-    out.dims = {};
-
-    out.iterator = iterator;
-
-    out.dim = function (name, min, max) {
-        if (!out.dims[name]) {
-            out.dims[name] = {min: 0, max: 0};
-        }
-
-        out._last_dim = name;
-        return out;
-    };
-
-    out.max = function (max, dim) {
-        if (!dim) {
-            dim = out._last_dim;
-        } else {
-            out._last_dim = dim;
-        }
-
-        out.dim(dim).dims[dim].max = max;
-
-        return out;
-    };
-
-    out.min = function (min, dim) {
-        if (!dim) {
-            dim = out._last_dim;
-        } else {
-            out._last_dim = dim;
-        }
-
-        out.dim(dim).dims[dim].min = min;
-
-        return out;
-    };
-
-    return out;
-};
-
-Fools.loop = loop;
 function fork(test, if_true, if_false, if_error) {
 
     var out = function Fork() {
@@ -423,5 +470,5 @@ function fork(test, if_true, if_false, if_error) {
 }
 
 Fools.fork = fork;
-return Fools;
+    return Fools;
 }));

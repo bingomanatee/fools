@@ -1,10 +1,10 @@
 function pipe() {
 
-    var out = function Pipe(input) {
-
+    var out = function Pipe() {
+        var input = _.toArray(arguments);
         for (var i = 0; ( i < out.tests.length); ++i) {
             try {
-                input = out.tests[i](input);
+                input = i ? out.tests[i](input) : out.tests[i].apply(out.tests[i], input)
             }
             catch (err) {
                 if (out.if_error) {

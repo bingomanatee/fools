@@ -1,9 +1,9 @@
 function range() {
 
     var out = function Range(input) {
-        var value = out.filter ? out.filter(input) : input;
 
         try {
+            var value = out.filter ? out.filter(input) : input;
             if (value < out.brackets[0]) {
                 if (out.min) {
                     return typeof(out.min) == 'function' ? out.min(value, input) : out.min
@@ -27,6 +27,10 @@ function range() {
                             return result;
                         }
                     }
+                }
+
+                if (out.max){
+                    return (typeof this.max == 'function') ? this.max(value, input) : this.max;
                 }
 
                 var range_error = new Error('No brackedted result found');
@@ -64,7 +68,7 @@ function range() {
         return out;
     };
 
-    out.filter = function (filter) {
+    out.add_filter = function (filter) {
         out.filter = filter;
         return out;
     };
