@@ -66,7 +66,7 @@ function loop(iterator) {
 
     out.dim = function (name, min, max) {
         if (!out.dims[name]) {
-            out.dims[name] = {min: 0, max: 0};
+            out.dims[name] = {min: min || 0, max: max || 0};
         }
 
         out._last_dim = name;
