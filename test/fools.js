@@ -4,6 +4,33 @@ var _ = require('underscore');
 
 describe('Fools', function () {
 
+    describe('loop', function(){
+
+        var d1sum = 0, d2sum = 0, d3sum = 0;
+        before(function(){
+          Fools.loop(function(iter){
+               d1sum += iter.x;
+            }).dim('x', 2, 4)();
+
+           Fools.loop(function(iter){
+               d2sum += iter.x + iter.y;
+           }).dim('x', 2, 4).dim('y').min(1).max(5)();
+
+            Fools.loop(function(iter){
+                d3sum += iter.x ;
+            }).dim('x', 10, 20, 5).dim('y', 1, 4, 2)();
+
+
+        });
+
+        it('should increment along one axis', function(){
+            d1sum.should.eql(9, 'sum of 1d iterations');
+            d2sum.should.eql(90, 'sum of 2d iterations');
+            d3sum.should.eql(90, 'sum by 5s, twice, with an increment');
+        })
+
+    });
+
     /**
      * Rate evaluates candidates based on preprogrammed properties and weights.
      *

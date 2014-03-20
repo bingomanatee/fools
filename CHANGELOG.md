@@ -12,6 +12,7 @@ Added rate
 
 Allowed filter to throw error in range
 
-## 0.0.8
+## 0.0.8 - 0.0.9
 
 Added looping abstract
+allowed for different looping increments

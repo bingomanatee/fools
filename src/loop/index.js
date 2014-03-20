@@ -28,8 +28,9 @@ function loop(iterator) {
             var next = false;
             while ((!next) && (dim_index < dims.length)) {
                 var dim = dims[dim_index];
-                if (iterator[dim] < _max(dim, iterator)) {
-                    ++iterator[dim];
+                var inc = _inc(dim);
+                if (iterator[dim] + inc <= _max(dim, iterator)) {
+                    iterator[dim] += inc;
                     next = true;
                 } else {
                     iterator[dim] = _min(dim, iterator);
@@ -60,13 +61,18 @@ function loop(iterator) {
         return typeof(out.dims[dim].max) == 'function' ? out.dims[dim].max(iterator) : out.dims[dim].max;
     }
 
+    function _inc(dim, iterator){
+        return typeof(out.dims[dim].inc) == 'function' ? out.dims[dim].inc(iterator) : out.dims[dim].inc;
+
+    }
+
     out.dims = {};
 
     out.iterator = iterator;
 
-    out.dim = function (name, min, max) {
+    out.dim = function (name, min, max, inc) {
         if (!out.dims[name]) {
-            out.dims[name] = {min: min || 0, max: max || 0};
+            out.dims[name] = {min: min || 0, max: max || 0, inc: inc || 1};
         }
 
         out._last_dim = name;
@@ -96,6 +102,14 @@ function loop(iterator) {
 
         return out;
     };
+
+    out.inc = function(inc, dim){
+        if (!dim){
+            dim = _last_dim.last_dim;
+        } else {
+            out._last_dim = dim;
+        }
+    }
 
     return out;
 };
