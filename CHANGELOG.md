@@ -16,3 +16,7 @@ Allowed filter to throw error in range
 
 Added looping abstract
 allowed for different looping increments
+
+## 0.1.0
+
+added gauntlet

@@ -10,6 +10,7 @@ module.exports = function (grunt) {
                         'src/rate/index.js',
                         'src/loop/index.js',
                         'src/pipe/index.js',
+                        'src/gauntlet/index.js',
                         'src/until/index.js',
                         'src/fork/index.js']
                 }

@@ -4,26 +4,81 @@ var _ = require('underscore');
 
 describe('Fools', function () {
 
-    describe('loop', function(){
+    describe('gauntlet', function () {
+
+        var bot_loc = {x: 0, y: 2};
+
+        var min_x = 0;
+        var max_x = 2;
+        var min_y = 0;
+        var max_y = 2;
+
+        var gauntlet = Fools.gauntlet()
+            .add(function (input, good) {
+
+                if (bot_loc.y > min_y) {
+                    good();
+                    bot_loc.y -= 1;
+                }
+                return 'N';
+
+            }).add(function (input, good) {
+                if (bot_loc.x < max_x) {
+                    good();
+                    bot_loc.x += 1;
+                }
+                return 'E';
+            });
+
+        gauntlet.if_last = function () {
+            return '0';
+        };
+
+        it ('should move north', function(){
+            gauntlet().should.eql('N');
+            bot_loc.should.eql({x: 0, y: 1});
+        });
+
+        it ('should move north again', function(){
+            gauntlet().should.eql('N');
+            bot_loc.should.eql({x: 0, y: 0});
+        });
+
+        it('should move east', function(){
+            gauntlet().should.eql('E');
+            bot_loc.should.eql({x: 1, y: 0});
+        });
+
+        it('should move east again', function(){
+            gauntlet().should.eql('E');
+            bot_loc.should.eql({x: 2, y: 0});
+        });
+
+        it('should not move', function(){
+            gauntlet().should.eql('0');
+            bot_loc.should.eql({x: 2, y: 0});
+        });
+    });
+
+    describe('loop', function () {
 
         var d1sum = 0, d2sum = 0, d3sum = 0;
-        before(function(){
-          Fools.loop(function(iter){
-               d1sum += iter.x;
+        before(function () {
+            Fools.loop(function (iter) {
+                d1sum += iter.x;
             }).dim('x', 2, 4)();
 
-           Fools.loop(function(iter){
-               d2sum += iter.x + iter.y;
-           }).dim('x', 2, 4).dim('y').min(1).max(5)();
+            Fools.loop(function (iter) {
+                d2sum += iter.x + iter.y;
+            }).dim('x', 2, 4).dim('y').min(1).max(5)();
 
-            Fools.loop(function(iter){
-                d3sum += iter.x ;
+            Fools.loop(function (iter) {
+                d3sum += iter.x;
             }).dim('x', 10, 20, 5).dim('y', 1, 4, 2)();
-
 
         });
 
-        it('should increment along one axis', function(){
+        it('should increment along one axis', function () {
             d1sum.should.eql(9, 'sum of 1d iterations');
             d2sum.should.eql(90, 'sum of 2d iterations');
             d3sum.should.eql(90, 'sum by 5s, twice, with an increment');
@@ -45,7 +100,7 @@ describe('Fools', function () {
                 {name: 'bob', math: 2.0, english: 3.0, pe: 4.0, health: 3.0},
                 {name: 'stan', math: 4.0, english: 4.0, pe: 2.0, health: 4.0},
                 {name: 'rick', math: 3.5, english: 3.6, pe: 4.0, health: 4.0},
-                {name: 'sue', math: 4.0, english: 4.0, pe: 3.5 , health: 3.5}
+                {name: 'sue', math: 4.0, english: 4.0, pe: 3.5, health: 3.5}
             ];
             math_score = Fools.rate().prop('math');
 
@@ -73,15 +128,15 @@ describe('Fools', function () {
 
             gpa_flat.rate(students[0]).should.eql(3.0, 'bobs flat gpa == 3.0');
 
-           // var g = gpa.rate(students[2]);
-          //  console.log('gpa grade', g);
+            // var g = gpa.rate(students[2]);
+            //  console.log('gpa grade', g);
             gpa.rate(students[0]).should.be.approximately(2.83, 0.01, 'weighted grade for bob -- hurts on the fundamentals');
             gpa.rate(students[1]).should.be.approximately(3.66, 0.01, 'weighted grade for stan -- low PE score doesnt hurt too much');
             gpa.rate(students[2]).should.be.approximately(3.73, 0.01, 'weighted grade for rick -- good but in the wrong things');
             gpa.rate(students[3]).should.be.approximately(3.79, 0.01, 'weighted grade for sue -- high overall');
 
-          //  var g = gpa_flat.rate(students[2]);
-        //   console.log('gpa_flat grade', g);
+            //  var g = gpa_flat.rate(students[2]);
+            //   console.log('gpa_flat grade', g);
             gpa_flat.rate(students[0]).should.be.approximately(3, 0.01, 'weighted grade for bob -- hurts on the fundamentals');
             gpa_flat.rate(students[1]).should.be.approximately(3.5, 0.01, 'weighted grade for stan -- low PE score doesnt hurt too much');
             gpa_flat.rate(students[2]).should.be.approximately(3.77, 0.01, 'weighted grade for rick -- overall best');
@@ -123,8 +178,8 @@ describe('Fools', function () {
                     }
                     return false;
                 }).err(function () {
-                        return 0;
-                    })
+                    return 0;
+                })
                     .add(_range_test(-1000000, 5))
                     .add(_range_test(5, 10))
                     .add(_range_test(10, 15))
@@ -177,21 +232,21 @@ describe('Fools', function () {
                         throw new Error('not a number');
                     }
                 }).add(function (n) {
-                        if (n == 0) {
-                            ++zero;
-                            return true;
-                        }
-                    }).add(function (n) {
-                        if (n > 0) {
-                            ++whole;
-                            return true;
-                        }
-                    }).add(function (n) {
-                        if (n < 0) {
-                            ++negative;
-                            return true;
-                        }
-                    }).
+                    if (n == 0) {
+                        ++zero;
+                        return true;
+                    }
+                }).add(function (n) {
+                    if (n > 0) {
+                        ++whole;
+                        return true;
+                    }
+                }).add(function (n) {
+                    if (n < 0) {
+                        ++negative;
+                        return true;
+                    }
+                }).
                     err(function (e) {
                         ++errors;
                         return true;
@@ -277,12 +332,12 @@ describe('Fools', function () {
                     return n >= 0;
 
                 }).then(function () {
-                        ++positive;
-                    }).else(function () {
-                        ++negative;
-                    }).err(function () {
-                        ++errors
-                    });
+                    ++positive;
+                }).else(function () {
+                    ++negative;
+                }).err(function () {
+                    ++errors
+                });
 
                 if_positive.run(1).run(0).run(5).run(-1).run('foo');
             });
@@ -318,15 +373,14 @@ describe('Fools', function () {
                     return n >= 0;
 
                 }).then(
-                        Fools.fork(function (n) {
-                            return n > 0;
-                        }).then(function () {
-                                ++whole;
-                            }).else(function () {
-                                ++zero;
-                            })
-
-                    ).else(function () {
+                    Fools.fork(function (n) {
+                        return n > 0;
+                    }).then(function () {
+                        ++whole;
+                    }).else(function () {
+                        ++zero;
+                    })
+                ).else(function () {
                         ++negative;
                     }).err(function () {
                         ++errors
@@ -365,12 +419,12 @@ describe('Fools', function () {
                     }
                     return grep.test(text);
                 }).then(function (text) {
-                        var m = grep.exec(text);
-                        return parseFloat(m[1]);
-                    }).else(0).err(function (err) {
-                        ++bad;
-                        return 0;
-                    });
+                    var m = grep.exec(text);
+                    return parseFloat(m[1]);
+                }).else(0).err(function (err) {
+                    ++bad;
+                    return 0;
+                });
 
                 total = test('$2.00') + test('$5.00') + test([]) + test('$0.15');
             });
@@ -391,9 +445,9 @@ describe('Fools', function () {
             before(function () {
                 var make_member = function (id, name, likes) {
                     var m = {
-                        id:         id,
-                        name:       name,
-                        likes:      likes,
+                        id: id,
+                        name: name,
+                        likes: likes,
                         likability: 0
                     };
 
@@ -427,7 +481,7 @@ describe('Fools', function () {
                     })
                         .then(is_friends_with) // more points for a two way relationship
                         .else(is_liked_by) // points for them liking you, if you don't like them
-                    );
+                );
 
                 _.each(_.values(members), function (member) {
                     _.each(ids, function (id) {
@@ -497,21 +551,21 @@ describe('Fools', function () {
         var tally_negative = Fools.fork(function (n) {
             return n >= 0
         }).then(function (n) {
-                positive_numbers.push(n);
-                return n;
-            }).else(function (n) {
-                negative_numbers.push(n);
-                return n;
-            });
+            positive_numbers.push(n);
+            return n;
+        }).else(function (n) {
+            negative_numbers.push(n);
+            return n;
+        });
 
-        range_fn.add(0,function (n, i) {
+        range_fn.add(0, function (n, i) {
             ones.push(i);
-        }).add(10,function (n, i) {
-                tens.push(i);
-            }).add(50) // note - adding a no-handler bracket should delegate to the previous handler
-            .add(100,function (n, i) {
+        }).add(10, function (n, i) {
+            tens.push(i);
+        }).add(50) // note - adding a no-handler bracket should delegate to the previous handler
+            .add(100, function (n, i) {
                 hundreds.push(i);
-            }).add(1000,function (n, i) {
+            }).add(1000, function (n, i) {
                 thousands.push(i);
             }).add(10000)
             .add_max(function (n, i) {

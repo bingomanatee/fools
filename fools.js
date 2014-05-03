@@ -16,10 +16,12 @@
 var Fools = {
     util: {
         math: {
-              sum: function(){
-                  var args = _.filter(_.toArray(arguments), _isNumber);
-                  return _.reduce(args, function(o, v){ return o + v}, 0);
-              }
+            sum: function () {
+                var args = _.filter(_.toArray(arguments), _isNumber);
+                return _.reduce(args, function (o, v) {
+                    return o + v
+                }, 0);
+            }
         },
         add: {
             last: function (out) {
@@ -47,7 +49,11 @@ var Fools = {
             },
 
             add: function (out) {
+
                 out.add = function (test) {
+                    if (!out.tests) {
+                        out.tests = [];
+                    }
                     out.tests.push(test);
                     return out;
                 };
@@ -491,6 +497,66 @@ function pipe() {
 }
 
 Fools.pipe = pipe;
+function gauntlet() {
+
+    /**
+     *
+     * if no test is valid, then gauntlet will throw an error.
+     *
+     * test functions have the profile
+     *
+     * testFn(input, isGood)
+     *
+     * if the test is positive, call isGood();
+     *
+     * The result of gauntlet will be the output of the first test function
+     * for which isGood is called.
+     *
+     * @param input
+     * @returns {*}
+     * @constructor
+     */
+
+    var out = function Gauntlet(input) {
+        try {
+            for (var i = 0; i < out.tests.length; ++i) {
+                var good = false;
+                function isGood(){
+                    good = true;
+                }
+                var result = out.tests[i](input, isGood);
+                if (good) {
+                    return result;
+                }
+            }
+        } catch (err) {
+            if (out.if_error) {
+                return out.if_error(err);
+            } else {
+                throw err;
+            }
+        }
+
+        if (out.if_last) {
+            return out.if_last(input);
+        } else {
+            throw 'All tests failed';
+        }
+    };
+
+    out.tests = [];
+
+    Fools.util.add.add(out);
+    Fools.util.add.err(out);
+    Fools.util.add.run(out);
+    for (var i = 0; i < arguments.length; ++i) {
+        out.add(arguments[i]);
+    }
+
+    return out;
+}
+
+Fools.gauntlet = gauntlet;
 function until() {
 
     var out = function Until(input) {
