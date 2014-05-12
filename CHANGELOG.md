@@ -17,7 +17,13 @@ Allowed filter to throw error in range
 Added looping abstract
 allowed for different looping increments
 
+<<<<<<< HEAD
 ## 0.0.10
 
 Added each
 changing files to flatten src folder
+=======
+## 0.1.0
+
+added gauntlet
+>>>>>>> f55f8be20e0c9b72fa7385fcf1ab7233b01d31ff

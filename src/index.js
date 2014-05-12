@@ -1,10 +1,12 @@
 var Fools = {
     util: {
         math: {
-              sum: function(){
-                  var args = _.filter(_.toArray(arguments), _isNumber);
-                  return _.reduce(args, function(o, v){ return o + v}, 0);
-              }
+            sum: function () {
+                var args = _.filter(_.toArray(arguments), _isNumber);
+                return _.reduce(args, function (o, v) {
+                    return o + v
+                }, 0);
+            }
         },
         add: {
             last: function (out) {
@@ -32,7 +34,11 @@ var Fools = {
             },
 
             add: function (out) {
+
                 out.add = function (test) {
+                    if (!out.tests) {
+                        out.tests = [];
+                    }
                     out.tests.push(test);
                     return out;
                 };

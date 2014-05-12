@@ -1,6 +1,10 @@
 {
   "name": "fools",
+<<<<<<< HEAD
   "version": "0.0.10",
+=======
+  "version": "0.1.0",
+>>>>>>> f55f8be20e0c9b72fa7385fcf1ab7233b01d31ff
   "description": "A functional rules system based on the promise pattern",
   "main": "fools.js",
   "scripts": {

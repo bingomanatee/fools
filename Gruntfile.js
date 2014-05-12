@@ -5,6 +5,7 @@ module.exports = function (grunt) {
             base:       {
                 files: {
                     'build/fools.js': ['src/index.js',
+<<<<<<< HEAD
                         'src/range.js',
                         'src/all.js',
                         'src/rate.js',
@@ -13,6 +14,16 @@ module.exports = function (grunt) {
                         'src/pipe.js',
                         'src/until.js',
                         'src/fork.js']
+=======
+                        'src/range/index.js',
+                        'src/all/index.js',
+                        'src/rate/index.js',
+                        'src/loop/index.js',
+                        'src/pipe/index.js',
+                        'src/gauntlet/index.js',
+                        'src/until/index.js',
+                        'src/fork/index.js']
+>>>>>>> f55f8be20e0c9b72fa7385fcf1ab7233b01d31ff
                 }
             }
         },
