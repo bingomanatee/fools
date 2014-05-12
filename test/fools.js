@@ -4,7 +4,6 @@ var _ = require('lodash');
 
 describe('Fools', function() {
 
-<<<<<<< HEAD
     describe('loop', function() {
 
         var d1sum = 0, d2sum = 0, d3sum = 0;
@@ -18,87 +17,12 @@ describe('Fools', function() {
             }).dim('x', 2, 4).dim('y').min(1).max(5)();
 
             Fools.loop(function(iter) {
-=======
-    describe('gauntlet', function () {
-
-        var bot_loc = {x: 0, y: 2};
-
-        var min_x = 0;
-        var max_x = 2;
-        var min_y = 0;
-        var max_y = 2;
-
-        var gauntlet = Fools.gauntlet()
-            .add(function (input, good) {
-
-                if (bot_loc.y > min_y) {
-                    good();
-                    bot_loc.y -= 1;
-                }
-                return 'N';
-
-            }).add(function (input, good) {
-                if (bot_loc.x < max_x) {
-                    good();
-                    bot_loc.x += 1;
-                }
-                return 'E';
-            });
-
-        gauntlet.if_last = function () {
-            return '0';
-        };
-
-        it ('should move north', function(){
-            gauntlet().should.eql('N');
-            bot_loc.should.eql({x: 0, y: 1});
-        });
-
-        it ('should move north again', function(){
-            gauntlet().should.eql('N');
-            bot_loc.should.eql({x: 0, y: 0});
-        });
-
-        it('should move east', function(){
-            gauntlet().should.eql('E');
-            bot_loc.should.eql({x: 1, y: 0});
-        });
-
-        it('should move east again', function(){
-            gauntlet().should.eql('E');
-            bot_loc.should.eql({x: 2, y: 0});
-        });
-
-        it('should not move', function(){
-            gauntlet().should.eql('0');
-            bot_loc.should.eql({x: 2, y: 0});
-        });
-    });
-
-    describe('loop', function () {
-
-        var d1sum = 0, d2sum = 0, d3sum = 0;
-        before(function () {
-            Fools.loop(function (iter) {
-                d1sum += iter.x;
-            }).dim('x', 2, 4)();
-
-            Fools.loop(function (iter) {
-                d2sum += iter.x + iter.y;
-            }).dim('x', 2, 4).dim('y').min(1).max(5)();
-
-            Fools.loop(function (iter) {
->>>>>>> f55f8be20e0c9b72fa7385fcf1ab7233b01d31ff
                 d3sum += iter.x;
             }).dim('x', 10, 20, 5).dim('y', 1, 4, 2)();
 
         });
 
-<<<<<<< HEAD
         it('should increment along one axis', function() {
-=======
-        it('should increment along one axis', function () {
->>>>>>> f55f8be20e0c9b72fa7385fcf1ab7233b01d31ff
             d1sum.should.eql(9, 'sum of 1d iterations');
             d2sum.should.eql(90, 'sum of 2d iterations');
             d3sum.should.eql(90, 'sum by 5s, twice, with an increment');
@@ -197,11 +121,7 @@ describe('Fools', function() {
                         throw new Error('non number')
                     }
                     return false;
-<<<<<<< HEAD
                 }).err(function() {
-=======
-                }).err(function () {
->>>>>>> f55f8be20e0c9b72fa7385fcf1ab7233b01d31ff
                     return 0;
                 })
                     .add(_range_test(-1000000, 5))
@@ -255,39 +175,23 @@ describe('Fools', function() {
                     if (!_.isNumber(n)) {
                         throw new Error('not a number');
                     }
-<<<<<<< HEAD
                 }).add(function(n) {
-=======
-                }).add(function (n) {
->>>>>>> f55f8be20e0c9b72fa7385fcf1ab7233b01d31ff
                     if (n == 0) {
                         ++zero;
                         return true;
                     }
-<<<<<<< HEAD
                 }).add(function(n) {
-=======
-                }).add(function (n) {
->>>>>>> f55f8be20e0c9b72fa7385fcf1ab7233b01d31ff
                     if (n > 0) {
                         ++whole;
                         return true;
                     }
-<<<<<<< HEAD
                 }).add(function(n) {
-=======
-                }).add(function (n) {
->>>>>>> f55f8be20e0c9b72fa7385fcf1ab7233b01d31ff
                     if (n < 0) {
                         ++negative;
                         return true;
                     }
                 }).
-<<<<<<< HEAD
                     err(function(e) {
-=======
-                    err(function (e) {
->>>>>>> f55f8be20e0c9b72fa7385fcf1ab7233b01d31ff
                         ++errors;
                         return true;
                     });
@@ -371,19 +275,11 @@ describe('Fools', function() {
                     }
                     return n >= 0;
 
-<<<<<<< HEAD
                 }).then(function() {
                     ++positive;
                 }).else(function() {
                     ++negative;
                 }).err(function() {
-=======
-                }).then(function () {
-                    ++positive;
-                }).else(function () {
-                    ++negative;
-                }).err(function () {
->>>>>>> f55f8be20e0c9b72fa7385fcf1ab7233b01d31ff
                     ++errors
                 });
 
@@ -421,7 +317,6 @@ describe('Fools', function() {
                     return n >= 0;
 
                 }).then(
-<<<<<<< HEAD
                     Fools.fork(function(n) {
                         return n > 0;
                     }).then(function() {
@@ -430,16 +325,6 @@ describe('Fools', function() {
                         ++zero;
                     })
                 ).else(function() {
-=======
-                    Fools.fork(function (n) {
-                        return n > 0;
-                    }).then(function () {
-                        ++whole;
-                    }).else(function () {
-                        ++zero;
-                    })
-                ).else(function () {
->>>>>>> f55f8be20e0c9b72fa7385fcf1ab7233b01d31ff
                         ++negative;
                     }).err(function() {
                         ++errors
@@ -477,17 +362,10 @@ describe('Fools', function() {
                         throw new Error('non string passed');
                     }
                     return grep.test(text);
-<<<<<<< HEAD
                 }).then(function(text) {
                     var m = grep.exec(text);
                     return parseFloat(m[1]);
                 }).else(0).err(function(err) {
-=======
-                }).then(function (text) {
-                    var m = grep.exec(text);
-                    return parseFloat(m[1]);
-                }).else(0).err(function (err) {
->>>>>>> f55f8be20e0c9b72fa7385fcf1ab7233b01d31ff
                     ++bad;
                     return 0;
                 });
@@ -616,22 +494,14 @@ describe('Fools', function() {
 
         var tally_negative = Fools.fork(function(n) {
             return n >= 0
-<<<<<<< HEAD
         }).then(function(n) {
             positive_numbers.push(n);
             return n;
         }).else(function(n) {
-=======
-        }).then(function (n) {
-            positive_numbers.push(n);
-            return n;
-        }).else(function (n) {
->>>>>>> f55f8be20e0c9b72fa7385fcf1ab7233b01d31ff
             negative_numbers.push(n);
             return n;
         });
 
-<<<<<<< HEAD
         range_fn.add(0, function(n, i) {
             ones.push(i);
         }).add(10, function(n, i) {
@@ -640,16 +510,6 @@ describe('Fools', function() {
             .add(100, function(n, i) {
                 hundreds.push(i);
             }).add(1000, function(n, i) {
-=======
-        range_fn.add(0, function (n, i) {
-            ones.push(i);
-        }).add(10, function (n, i) {
-            tens.push(i);
-        }).add(50) // note - adding a no-handler bracket should delegate to the previous handler
-            .add(100, function (n, i) {
-                hundreds.push(i);
-            }).add(1000, function (n, i) {
->>>>>>> f55f8be20e0c9b72fa7385fcf1ab7233b01d31ff
                 thousands.push(i);
             }).add(10000)
             .add_max(function(n, i) {
@@ -752,5 +612,61 @@ describe('Fools', function() {
 
         })
 
-    })
+    });
+
+    describe('gauntlet', function () {
+
+        var bot_loc = {x: 0, y: 2};
+
+        var min_x = 0;
+        var max_x = 2;
+        var min_y = 0;
+        var max_y = 2;
+
+        var gauntlet = Fools.gauntlet()
+            .add(function (input, good) {
+
+                if (bot_loc.y > min_y) {
+                    good();
+                    bot_loc.y -= 1;
+                }
+                return 'N';
+
+            }).add(function (input, good) {
+                if (bot_loc.x < max_x) {
+                    good();
+                    bot_loc.x += 1;
+                }
+                return 'E';
+            });
+
+        gauntlet.if_last = function () {
+            return '0';
+        };
+
+        it ('should move north', function(){
+            gauntlet().should.eql('N');
+            bot_loc.should.eql({x: 0, y: 1});
+        });
+
+        it ('should move north again', function(){
+            gauntlet().should.eql('N');
+            bot_loc.should.eql({x: 0, y: 0});
+        });
+
+        it('should move east', function(){
+            gauntlet().should.eql('E');
+            bot_loc.should.eql({x: 1, y: 0});
+        });
+
+        it('should move east again', function(){
+            gauntlet().should.eql('E');
+            bot_loc.should.eql({x: 2, y: 0});
+        });
+
+        it('should not move', function(){
+            gauntlet().should.eql('0');
+            bot_loc.should.eql({x: 2, y: 0});
+        });
+    });
 });

@@ -1,30 +1,26 @@
 {
-  "name": "fools",
-<<<<<<< HEAD
-  "version": "0.0.10",
-=======
-  "version": "0.1.0",
->>>>>>> f55f8be20e0c9b72fa7385fcf1ab7233b01d31ff
-  "description": "A functional rules system based on the promise pattern",
-  "main": "fools.js",
-  "scripts": {
-    "test": "make test"
-  },
-  "keywords": [
-    "functional",
-    "rules"
-  ],
-  "author": "Dave Edelhart",
-  "license": "BSD-2-Clause",
-  "devDependencies": {
-    "tap": "~0.4.8",
-    "grunt": "~0.4.2",
-    "grunt-umd": "~1.6.1",
-    "grunt-contrib-concat": "~0.3.0",
-    "mocha": "~1.17.1",
-    "should": "~3.1.2"
-  },
-  "dependencies": {
-    "lodash": "~2.4.1"
-  }
+    "name": "fools",
+    "version": "0.1.1",
+    "description": "A functional rules system based on the promise pattern",
+    "main": "fools.js",
+    "scripts": {
+        "test": "make test"
+    },
+    "keywords": [
+        "functional",
+        "rules"
+    ],
+    "author": "Dave Edelhart",
+    "license": "BSD-2-Clause",
+    "devDependencies": {
+        "tap": "~0.4.8",
+        "grunt": "~0.4.2",
+        "grunt-umd": "~1.6.1",
+        "grunt-contrib-concat": "~0.3.0",
+        "mocha": "~1.17.1",
+        "should": "~3.1.2"
+    },
+    "dependencies": {
+        "lodash": "~2.4.1"
+    }
 }

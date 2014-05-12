@@ -1,44 +1,35 @@
-module.exports = function (grunt) {
+module.exports = function(grunt) {
 
     grunt.initConfig({
-        concat:   {
-            base:       {
+        concat: {
+            base: {
                 files: {
-                    'build/fools.js': ['src/index.js',
-<<<<<<< HEAD
+                    'build/fools.js': [
+                        'src/index.js',
                         'src/range.js',
                         'src/all.js',
                         'src/rate.js',
                         'src/loop.js',
                         'src/each.js',
                         'src/pipe.js',
+                        'src/gauntlet.js',
                         'src/until.js',
                         'src/fork.js']
-=======
-                        'src/range/index.js',
-                        'src/all/index.js',
-                        'src/rate/index.js',
-                        'src/loop/index.js',
-                        'src/pipe/index.js',
-                        'src/gauntlet/index.js',
-                        'src/until/index.js',
-                        'src/fork/index.js']
->>>>>>> f55f8be20e0c9b72fa7385fcf1ab7233b01d31ff
                 }
             }
         },
-        umd:      {
+        umd: {
             fork: {
-                src:            'build/fools.js',
-                dest:           'fools.js', // optional, if missing the src will be used
-                template:       'unit', // optional; a template from templates subdir can be specified by name (e.g. 'umd');
+                src: 'build/fools.js',
+                dest: 'fools.js', // optional, if missing the src will be used
+                template: 'unit', // optional; a template from templates subdir can be specified by name (e.g. 'umd');
                 // if missing the templates/umd.hbs file will be used
                 objectToExport: 'Fools', // optional, internal object that will be exported
-                amdModuleId:    'Fools', // optional, if missing the AMD module will be anonymous
-                globalAlias:    'Fools', // optional, changes the name of the global variable
-                deps:           { // optional
+                amdModuleId: 'Fools', // optional, if missing the AMD module will be anonymous
+                globalAlias: 'Fools', // optional, changes the name of the global variable
+                deps: { // optional
                     'default': ['_'],
-                    cjs:       ['lodash']
+                    cjs: ['lodash']
                 }
             }
         }
