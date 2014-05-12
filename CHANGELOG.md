@@ -16,3 +16,8 @@ Allowed filter to throw error in range
 
 Added looping abstract
 allowed for different looping increments
+
+## 0.0.10
+
+Added each
+changing files to flatten src folder

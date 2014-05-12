@@ -5,13 +5,14 @@ module.exports = function (grunt) {
             base:       {
                 files: {
                     'build/fools.js': ['src/index.js',
-                        'src/range/index.js',
-                        'src/all/index.js',
-                        'src/rate/index.js',
-                        'src/loop/index.js',
-                        'src/pipe/index.js',
-                        'src/until/index.js',
-                        'src/fork/index.js']
+                        'src/range.js',
+                        'src/all.js',
+                        'src/rate.js',
+                        'src/loop.js',
+                        'src/each.js',
+                        'src/pipe.js',
+                        'src/until.js',
+                        'src/fork.js']
                 }
             }
         },
