@@ -575,8 +575,8 @@ function gauntlet() {
             }
         }
 
-        if (out.if_last) {
-            return out.if_last(input);
+        if (out.last_fn) {
+            return out.last_fn(input);
         } else {
             throw 'All tests failed';
         }
