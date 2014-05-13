@@ -1,6 +1,6 @@
 {
     "name": "fools",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "description": "A functional rules system based on the promise pattern",
     "main": "fools.js",
     "scripts": {

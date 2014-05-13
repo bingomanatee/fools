@@ -50,6 +50,7 @@ function gauntlet() {
     Fools.util.add.add(out);
     Fools.util.add.err(out);
     Fools.util.add.run(out);
+    Fools.util.add.last(out);
     for (var i = 0; i < arguments.length; ++i) {
         out.add(arguments[i]);
     }
