@@ -2,6 +2,13 @@ module.exports = function(grunt) {
 
     grunt.initConfig({
         concat: {
+            doc: {
+                files: {
+                    'API.md': [
+                        'doc/*.md'
+                    ]
+                }
+            },
             base: {
                 files: {
                     'build/fools.js': [
@@ -10,6 +17,8 @@ module.exports = function(grunt) {
                         'src/all.js',
                         'src/rate.js',
                         'src/loop.js',
+                        'src/pairs.js',
+                        'src/rate.js',
                         'src/each.js',
                         'src/pipe.js',
                         'src/gauntlet.js',

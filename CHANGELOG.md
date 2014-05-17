@@ -14,16 +14,19 @@ Allowed filter to throw error in range
 
 ## 0.0.8 - 0.0.9
 
-Added looping abstract
-allowed for different looping increments
+* Added looping abstract
+* allowed for different looping increments
 
-<<<<<<< HEAD
 ## 0.0.10
 
-Added each
-changing files to flatten src folder
-=======
+* Added each
+* changing files to flatten src folder
+
 ## 0.1.0
 
 added gauntlet
->>>>>>> f55f8be20e0c9b72fa7385fcf1ab7233b01d31ff
+
+## 0.1.5
+
+* added pairs
+* better API documentation

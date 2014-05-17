@@ -62,7 +62,7 @@ function rate(){
                 return {rating: out.rate(item), data: item};
             });
         } else {
-            return this.rate(data);
+            return out.rate(data);
         }
     }
 
@@ -127,16 +127,10 @@ function rate(){
      * @returns {out}
      */
 
-    out.prop = function(param, rating, weight){
+    out.prop = out.property = function(param, rating, weight){
         var prop = new Property(param, rating, weight);
         out.properties.push(prop);
         return out;
-    };
-
-    out.property = function(param, rating, weight){
-        var prop = new Property(param, rating, weight);
-        out.properties.push(prop);
-        return prop;
     };
 
     return out;

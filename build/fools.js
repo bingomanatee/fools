@@ -249,7 +249,7 @@ function rate(){
                 return {rating: out.rate(item), data: item};
             });
         } else {
-            return this.rate(data);
+            return out.rate(data);
         }
     }
 
@@ -314,16 +314,10 @@ function rate(){
      * @returns {out}
      */
 
-    out.prop = function(param, rating, weight){
+    out.prop = out.property = function(param, rating, weight){
         var prop = new Property(param, rating, weight);
         out.properties.push(prop);
         return out;
-    };
-
-    out.property = function(param, rating, weight){
-        var prop = new Property(param, rating, weight);
-        out.properties.push(prop);
-        return prop;
     };
 
     return out;
@@ -448,6 +442,55 @@ function loop(iterator) {
 };
 
 Fools.loop = loop;
+function pairs(test) {
+
+    if (!test){
+        test = function(a, b){
+            return a === b;
+        }
+    }
+
+    var out = function Pairs(setOne, setTwo ) {
+        setOne = setOne.slice(0);
+        setTwo = setTwo.slice(0);
+
+        var pairs =[];
+
+        if (!(_.isArray(setOne) && _.isArray(setTwo))){
+            throw ('comparators must be arrays;')
+        }
+
+        if (!(setOne.length && setTwo.length)){
+           // console.log('one of the arrays is empty -- returning empty array');
+            return [];
+        }
+
+        _.each(setOne, function(oneItem){
+            var foundAt = -1;
+            for (var i = 0; i < setTwo.length && (foundAt == -1); ++i){
+                var candidate =  setTwo[i];
+                if (test(oneItem, candidate)){
+                    foundAt = i;
+                } else  {
+                  //  console.log('failed comparison %s -- %s', oneItem, candidate)
+                }
+            }
+
+            if (foundAt != -1){
+                pairs.push([oneItem, setTwo[foundAt]]);
+                setTwo.splice(foundAt, 1);
+            } else {
+               // console.log('cannot match %s', oneItem);
+            }
+        });
+
+        return pairs;
+    };
+
+    return out;
+}
+
+Fools.pairs = pairs;
 function each() {
 
     var out = function Each(input) {
