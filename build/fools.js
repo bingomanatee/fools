@@ -314,10 +314,16 @@ function rate(){
      * @returns {out}
      */
 
-    out.prop = out.property = function(param, rating, weight){
+    out.prop = function(param, rating, weight){
         var prop = new Property(param, rating, weight);
         out.properties.push(prop);
         return out;
+    };
+
+    out.property = function(param, rating, weight){
+        var prop = new Property(param, rating, weight);
+        out.properties.push(prop);
+        return prop;
     };
 
     return out;
@@ -442,45 +448,57 @@ function loop(iterator) {
 };
 
 Fools.loop = loop;
-function pairs(test) {
+function pairs(test, multi) {
 
-    if (!test){
-        test = function(a, b){
+    if (!test) {
+        test = function (a, b) {
             return a === b;
         }
     }
 
-    var out = function Pairs(setOne, setTwo ) {
+    var out = function Pairs(setOne, setTwo) {
         setOne = setOne.slice(0);
         setTwo = setTwo.slice(0);
 
-        var pairs =[];
+        var pairs = [];
 
-        if (!(_.isArray(setOne) && _.isArray(setTwo))){
+        if (!(_.isArray(setOne) && _.isArray(setTwo))) {
             throw ('comparators must be arrays;')
         }
 
-        if (!(setOne.length && setTwo.length)){
-           // console.log('one of the arrays is empty -- returning empty array');
+        if (!(setOne.length && setTwo.length)) {
+            // console.log('one of the arrays is empty -- returning empty array');
             return [];
         }
 
-        _.each(setOne, function(oneItem){
-            var foundAt = -1;
-            for (var i = 0; i < setTwo.length && (foundAt == -1); ++i){
-                var candidate =  setTwo[i];
-                if (test(oneItem, candidate)){
-                    foundAt = i;
-                } else  {
-                  //  console.log('failed comparison %s -- %s', oneItem, candidate)
+        _.each(setOne, function (oneItem) {
+            var matches = [];
+            var complete = false;
+            var finds = [];
+
+            for (var i = 0; i < setTwo.length && !complete; ++i) {
+                var candidate = setTwo[i];
+                if (test(oneItem, candidate)) {
+                    finds.push(i);
+                    matches.push(candidate);
+                    if (!multi) {
+                        complete = true;
+                    }
                 }
             }
 
-            if (foundAt != -1){
-                pairs.push([oneItem, setTwo[foundAt]]);
-                setTwo.splice(foundAt, 1);
-            } else {
-               // console.log('cannot match %s', oneItem);
+            finds.reverse();
+            for (var f = 0; f < finds.length; ++f){
+                setTwo.splice(finds[f],1);
+            }
+
+            if (matches.length) {
+                if (multi) {
+                    pairs.push([oneItem, matches])
+                }
+                else {
+                    pairs.push([oneItem, _.first(matches)]);
+                }
             }
         });
 

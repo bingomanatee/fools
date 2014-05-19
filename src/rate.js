@@ -127,10 +127,16 @@ function rate(){
      * @returns {out}
      */
 
-    out.prop = out.property = function(param, rating, weight){
+    out.prop = function(param, rating, weight){
         var prop = new Property(param, rating, weight);
         out.properties.push(prop);
         return out;
+    };
+
+    out.property = function(param, rating, weight){
+        var prop = new Property(param, rating, weight);
+        out.properties.push(prop);
+        return prop;
     };
 
     return out;
