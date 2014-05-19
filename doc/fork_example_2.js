@@ -1,55 +1,21 @@
 var Fools = require('./../fools');
 var _ = require('lodash');
 var util = require('util');
+var Animal = require('./Animal');
 
 function scenario(ratio, MAX_TURNS, animalCount, mapSize, grassLength, regrowthRate) {
-    var alert_level = 0;
-    var grass = _.map(_.range(0, mapSize), function () {
+    var alert_level = 10;
+    var grass = _.map(_.range(0, mapSize), function() {
         return grassLength;
     });
 
-    var state = _.template('ANIMAL <%= name %>(<%= type %>) @ <%= location %>: <% if (alive){%> hunger: <%= hunger %> <%} else {%> DEAD: <%= note %> <% } %>');
-     var id = 0;
-    function Animal(name, animalType) {
-        var animal = {
-            id: ++id,
-            name: name,
-            hunger: 0,
-            fatigue: 0,
-            male: true,
-            location: Math.floor(Math.random() * grass.length),
-            awake: true,
-            alive: true,
-            type: animalType,
-            note: ''
-        };
-
-        animal.status = function () {
-            return state(animal);
-        };
-
-        animal.get_hungry = function(){
-            switch(animal.type){
-
-                case 'goat':
-                    animal.hunger += 0.5;
-                    break;
-
-                case 'wolf':
-                    animal.hunger += 0.25;
-                    break;
-            }
-        }
-
-        return animal;
-    }
-
-    var animals = _.map(_.range(0, animalCount), function (i) {
+    var animals = [];
+    _.each(_.range(0, animalCount), function(i) {
         var animalType = i / animalCount > ratio ? 'wolf' : 'goat';
-        return Animal(animalType + '_' + i, animalType);
+        animals.push(Animal(animalType + '_' + i, animalType, grass, animals, alert_level));
     });
 
-    var goats = _.filter(animals, function (a) {
+    var goats = _.filter(animals, function(a) {
         return a.type == 'goat';
     });
 
@@ -76,18 +42,10 @@ function scenario(ratio, MAX_TURNS, animalCount, mapSize, grassLength, regrowthR
     }
 
     function can_eat(animal) {
-        switch (animal.type) {
-            case 'goat':
-                return grass[animal.location] > 0;
-                break;
-
-            case 'wolf':
-                return prey(animal);
-                break;
-
-            default:
-                return false;
+        if (alert_level > 4) {
+            console.log('animal %s %s', animal.name, animal.can_eat() ? 'can eat' : 'cannot eat');
         }
+        return animal.can_eat();
     }
 
     function is_starved(goat) {
@@ -98,41 +56,11 @@ function scenario(ratio, MAX_TURNS, animalCount, mapSize, grassLength, regrowthR
         return !goat.alive;
     }
 
+    function is_wolf(animal) {
+        return animal.type == 'wolf';
+    }
+
     /** activity **/
-
-    function live_goats() {
-        return _.filter(goats, 'alive');
-    }
-
-    function prey(wolf) {
-        var nearGoats = Fools.pairs(function (w, g) {
-            return g.alive && (w.location == g.location) ;
-        }, true)([wolf], live_goats())[0];
-        if (nearGoats) {
-            var prey = nearGoats[1];
-            return _.first(_.shuffle(prey));
-        } else {
-            return false;
-        }
-    }
-
-    function other_animals(wolf){
-        return _.filter(animals, function(a){
-            return a.id != wolf.id;
-        })
-    }
-
-    function hard_prey(wolf) {
-        var nearGoats = Fools.pairs(function (w, g) {
-            return (g.alive) && ( w.location == g.location);
-        }, true)([wolf], other_animals(wolf))[0];
-        if (nearGoats) {
-            var prey = nearGoats[1];
-            return _.first(_.shuffle(prey));
-        } else {
-            return false;
-        }
-    }
 
     function do_nothing(goat) {
         if (goat.alive) {
@@ -169,115 +97,39 @@ function scenario(ratio, MAX_TURNS, animalCount, mapSize, grassLength, regrowthR
         } else {
             --animal.location;
         }
-        ++animal.hunger;
-        animal.fatigue += 0.5;
         return animal;
     }
 
-    function move(animal) {
-        switch (animal.type) {
-            case 'goat':
-                wander(animal);
-                if (alert_level > 1) {
-                    console.log('-- %s ...... moved', animal.status());
-                }
-                break;
-
-            case 'wolf':
-                var p = prey(animal);
-
-                // pass one - stalking goats
-                if (p) {
-                    // stay put
-                } else {
-                    var back = {location: animal.location - 1};
-                    p = prey(back);
-                    if (p) {
-                        animal.location--;
-                    } else {
-                        var forward = {location: animal.location + 1};
-                        p = prey(forward);
-                        if (forward) {
-                            animal.location++;
-                        }
-                    }
-                }
-
-                // pass two -- stalking other wolves!
-                p = hard_prey(animal);
-                if (p) {
-                    // stay put
-                } else {
-                    var back = {location: animal.location - 1};
-                    p = hard_prey(back);
-                    if (p) {
-                        animal.location--;
-                    } else {
-                        var forward = {location: animal.location + 1};
-                        p = hard_prey(forward);
-                        if (forward) {
-                            animal.location++;
-                        }
-                    }
-                }
-
-                if (p) {
-                    if (!p.alive){
-                        throw new Error('should not stalk dead prey');
-                    }
-                    if (alert_level > 0) {
-                        console.log('%s STALKING %s', animal.status(), p.status());
-                    }
-                    eat(animal);
-                } else {
-                    if (alert_level > 2) {
-                        console.log('%s WANDERING ', animal.status());
-                    }
-                    wander(animal);
-                }
-                break;
+    function move(animal, dest) {
+        if (arguments.length > 1) {
+            animal.location = dest;
+        } else {
+            wander(animal);
         }
+        animal.moved();
         return animal;
-    }
-
-    function hunt(animal, my_prey){
-        animal.hunger -= Math.ceil(10 / (1 + my_prey.hunger));
-        my_prey.alive = false;
-        my_prey.note = 'eaten by' + animal.name;
-        if (alert_level > 0) {
-            console.log('!!!!!! %s ATE %s', animal.status(), my_prey.status());
-        }
     }
 
     function eat(animal) {
 
         switch (animal.type) {
             case 'goat':
-                var grass_value = grass[animal.location];
-                if (grass_value <= 0) {
-                    return;
-                } else if (grass_value < 1) {
-                    animal.hunger -= grass_value;
-                    grass[animal.location] = 0;
-                } else {
-                    --grass[animal.location];
-                    --animal.hunger;
-                }
+                var grass_available = Math.min(1, grass[animal.location]);
+                grass[animal.location] -= grass_available;
+                animal.hunger -= grass_available;
+
                 if (alert_level > 2) {
-                    console.log('animal %s EATS GRASS', animal.status());
+                    console.log('animal %s EATS %s GRASS', animal.status(), grass_available);
+                }
+                if (!grass_available) {
+                    if (alert_level > 0) {
+                        console.log('animal %s _______ has no grass! ', animal.status());
+                    }
                 }
                 break;
 
             case 'wolf':
-                var my_prey = prey(animal);
-                if (my_prey) {
-                    hunt(animal, my_prey);
-                } else {
-                    var my_hard_prey = hard_prey(animal);
-                    if (my_hard_prey){
-                        hunt(animal, my_hard_prey);
-                    }
-                }
+                animal.kill();
                 break;
 
         }
@@ -291,8 +143,30 @@ function scenario(ratio, MAX_TURNS, animalCount, mapSize, grassLength, regrowthR
             console.log('grass: %s', grass.join('  '));
         }
         animal.alive = false;
-        animal.note = 'starved to death';
+        animal.note = 'starved to death with grass ' + grass.join('');
 
+        return animal;
+    }
+
+    function forage(animal) {
+        var bestGrass = 0;
+        var target = _.reduce(_.range(Math.max(0, animal.location - 1), Math.min(grass.length - 1, animal.location + 1)), function(dest, loc) {
+            if (grass[loc] > bestGrass) {
+                bestGrass = grass[loc];
+                return loc;
+            } else {
+                return dest;
+            }
+        }, animal.location);
+        move(animal, target);
+        if (animal.hunger > 7) {
+            console.log('hungry %s moved to %s', animal.status(), target);
+        }
+        return animal;
+    }
+
+    function seekPrey(animal) {
+        animal.seekPrey();
         return animal;
     }
 
@@ -309,21 +183,17 @@ function scenario(ratio, MAX_TURNS, animalCount, mapSize, grassLength, regrowthR
                     .else(Fools.fork(is_hungry)
                         .then(Fools.fork(can_eat)
                             .then(eat)
-                            .else(function (animal) {
-                                if (alert_level > 2) {
-                                    console.log('animal %s cannot eat -- looks for food', animal.status());
-
-                                }
-                                move(animal);
-                            })
-                    ).else(do_nothing)
+                            .else(Fools.fork(is_wolf)
+                                .then(seekPrey)
+                                .else(forage))
+                    ).else(move)
                 )
             )
         )
     );
 
-    var animal_turn = function (goat) {
-        Fools.pipe(goat_action, function (goat) {
+    var animal_turn = function(goat) {
+        Fools.pipe(goat_action, function(goat) {
             /*  if (goat.alive){
              console.log('goat %s: awake: %s, fatigue: %s, hunger: %s, location: %s',
              goat.name, goat.awake, goat.fatigue, goat.hunger, goat.location)
@@ -334,7 +204,7 @@ function scenario(ratio, MAX_TURNS, animalCount, mapSize, grassLength, regrowthR
     };
 
     function growGrass() {
-        grass = _.map(grass, function (length) {
+        grass = _.map(grass, function(length) {
             if (length >= grassLength) {
                 return grassLength;
             }
@@ -348,7 +218,7 @@ function scenario(ratio, MAX_TURNS, animalCount, mapSize, grassLength, regrowthR
     }
 
     var turns = 0;
-    while (_.find(animals, function (a) {
+    while (_.find(animals, function(a) {
         return a.alive
     }) && ++turns < MAX_TURNS) {
         /**
@@ -362,7 +232,7 @@ function scenario(ratio, MAX_TURNS, animalCount, mapSize, grassLength, regrowthR
         /**
          * any active animal gets gradually hungry
          */
-        _.each(animals, function (animal) {
+        _.each(animals, function(animal) {
             if (animal.awake) {
                 animal.get_hungry();
             }
@@ -381,13 +251,13 @@ function scenario(ratio, MAX_TURNS, animalCount, mapSize, grassLength, regrowthR
     if (alert_level > 0) {
         console.log('grass: %s', grass.join('   '));
     }
-    _.each(animals, function (animal) {
+    _.each(animals, function(animal) {
         if (alert_level > 0) {
             console.log('animal state: %s', animal.status());
         }
     });
 
-    return [turns, _.filter(animals, function (animal) {
+    return [turns, _.filter(animals, function(animal) {
         return animal.alive;
     }), grass, animals];
 }
@@ -402,20 +272,20 @@ function scenario(ratio, MAX_TURNS, animalCount, mapSize, grassLength, regrowthR
 var grassSize = 5;
 var growthRate = 0.1;
 var max_turns = 50;
-_.each([2, 6, 12, 20], function(animalCount){
+_.each([2, 6, 12, 20], function(animalCount) {
 
-_.each([8, 12, 24, 40], function (mapSize) {
-    _.each(_.range(4, 10), function (range) {
-        var ar = range / 10;
-        console.log('animal ratio: %s', ar);
-        var result = scenario(ar, max_turns, animalCount, mapSize, grassSize, growthRate);
-        console.log('===================================');
-        console.log('map size: %s, duration: %s/%s, of %s starting animals, %s survived',
-            mapSize, result[0], max_turns, animalCount, result[1].length);
-        console.log('grass: %s', result[2].join(' '));
-        _.each(result[3], function(animal){
-            console.log(animal.status())
-        })
+    _.each([8, 12, 24, 40], function(mapSize) {
+        _.each(_.range(4, 10), function(range) {
+            var ar = range / 10;
+            console.log('animal ratio: %s', ar);
+            var result = scenario(ar, max_turns, animalCount, mapSize, grassSize, growthRate);
+            console.log('===================================');
+            console.log('map size: %s, duration: %s/%s, of %s starting animals, %s survived',
+                mapSize, result[0], max_turns, animalCount, result[1].length);
+            console.log('grass: %s', result[2].join(' '));
+            _.each(result[3], function(animal) {
+                console.log(animal.status())
+            })
+        });
     });
-});
 })

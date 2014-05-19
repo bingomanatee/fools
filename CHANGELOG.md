@@ -30,3 +30,7 @@ added gauntlet
 
 * added pairs
 * better API documentation
+
+## 0.1.6
+
+allowed for multi-match pairs
