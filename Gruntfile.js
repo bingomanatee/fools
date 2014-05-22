@@ -22,6 +22,7 @@ module.exports = function(grunt) {
                         'src/each.js',
                         'src/pipe.js',
                         'src/gauntlet.js',
+                        'src/frameOfReference.js',
                         'src/until.js',
                         'src/fork.js']
                 }
