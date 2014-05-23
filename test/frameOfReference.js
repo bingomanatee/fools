@@ -250,11 +250,11 @@ describe('Fools', function() {
 
                 it('should have a unityMin of [-200, -50, 100]', function(){
                     unityMin.should.eql({x: -200, y: -50, z: 100});
-                })
+                });
 
                 it('should have a unityMax of [200, 100, 300]', function(){
                     unityMax.should.eql({x: 200, y: 100, z: 300});
-                })
+                });
             });
 
             describe('translate screen to unity,', function() {
@@ -287,7 +287,6 @@ describe('Fools', function() {
             });
 
             describe('translate screen to three,', function() {
-
                 describe('should translate three min from screen min',
                     function() {
                         // since we are translating from a frame of reference without a z value we only compare x and y

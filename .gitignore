@@ -3,3 +3,9 @@ node_modules
 /.idea/workspace.xml
 
 .DS_Store
+
+/.idea/inspectionProfiles/
+/.idea/jsLibraryMappings.xml
+/.idea/libraries/
+
+/_convert/

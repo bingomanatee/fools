@@ -173,6 +173,29 @@ Def.TEMPLATES = {
         },
         params: ['x', 'y'],
         reversed: ['y']
+    },
+    'leapLeft': {
+        axes: {
+            x: [-125, 40],
+            y: [180, 250],
+            z: [-80, 110]
+        },
+        dimensions: ['x', 'y', 'z']
+    },
+
+    'leapRight': {
+        axes: {
+            x: [-40, 125],
+            y: [108, 250],
+            z: [-80, 110]
+        }
+    },
+    'leapMiddle': {
+        axes: {
+            x: [-80, 89],
+            y: [108, 250],
+            z: [-80, 110]
+        }
     }
 };
 

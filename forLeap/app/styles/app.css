@@ -1,0 +1,31 @@
+html {
+  background: #fff;
+}
+
+.backfaceVisibility {
+  -webkit-backface-visibility: visible;
+  backface-visibility: visible;
+}
+
+.leap-finger {
+    background-color: rgb(186, 131, 85);
+    color: white;
+    padding: 2px;
+    font-weight: bold;
+    font-family: "Helvetica Neue", Helvetica, Arial;
+    text-align: center;
+}
+
+.leap-finger.normalized {
+    background-color: rgba(48, 153, 155, 0.27);
+    color: black;
+}
+
+
+.leap-finger.normalized.right {
+    border: 2px solid red;
+}
+
+.leap-finger.normalized.left {
+    border: 2px solid blue;
+}

@@ -1,3 +1,22 @@
+
+(function(root, factory) {
+    if(typeof exports === 'object') {
+        module.exports = factory(require('lodash'), require, exports, module);
+    }
+    else if(typeof define === 'function' && define.amd) {
+       // define('Fools', ['_', 'require', 'exports', 'module'], factory);
+
+        define(function(require, exports, module) {
+            module.exports = factory(require('./lodash'), require);
+        })
+    }
+    else {
+        var req = function(id) {return root[id];},
+            exp = root,
+            mod = {exports: exp};
+        root.Fools = factory(root._, req, exp, mod);
+    }
+}(this, function(_, require, exports, module) {
 var Fools = {
     util: {
         math: {
@@ -1035,3 +1054,5 @@ function fork(test, if_true, if_false, if_error) {
 }
 
 Fools.fork = fork;
+return Fools;
+}));
