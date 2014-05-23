@@ -910,7 +910,7 @@ Fools.frameOfReference = function() {
             return def;
         },
 
-        def: function(name){
+        def: function(name) {
             return this._defs[name];
         },
 
@@ -948,6 +948,17 @@ Fools.frameOfReference = function() {
             }
 
             return result;
+        },
+
+        /**
+         * takes an object in the 0..1 space and translates it into the -1 ... 1 space
+         * @param input
+         */
+        normalizedToOrigin: function(input) {
+            return _.reduce(input, function(out, value, key) {
+                out[key] = 2 * (value - 1);
+                return out;
+            }, {});
         }
     };
 

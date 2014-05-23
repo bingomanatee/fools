@@ -34,3 +34,7 @@ added gauntlet
 ## 0.1.6
 
 allowed for multi-match pairs
+
+## 0.1.7
+
+added frameOfReference for translating between coordinate systems
